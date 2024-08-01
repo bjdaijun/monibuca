@@ -5,7 +5,11 @@ on:
     branches: [ "v4" ]
   pull_request:
     branches: [ "v4" ]
-
+env:
+  ALIYUN_REGISTRY: "${{ secrets.ALIYUN_REGISTRY }}"
+  ALIYUN_NAME_SPACE: "${{ secrets.ALIYUN_NAME_SPACE }}"
+  ALIYUN_REGISTRY_USER: "${{ secrets.ALIYUN_REGISTRY_USER }}"
+  ALIYUN_REGISTRY_PASSWORD: "${{ secrets.ALIYUN_REGISTRY_PASSWORD }}"
 jobs:
 
   build:
@@ -14,5 +18,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+  
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag registry.cn-zhangjiakou.aliyuncs.com/mapaas/m7s:$(date +%s)
+      run: |
+        VERSION=$(git tag --contains HEAD | grep ^v| sort -rV | head -n 1)
+        BUILD_DATE=$(date "+%F %T")
+        GIT_VERSION=$(git rev-parse --short HEAD)
+        docker login -u $ALIYUN_REGISTRY_USER -p $ALIYUN_REGISTRY_PASSWORD $ALIYUN_REGISTRY
+        docker build . --file Dockerfile --tag registry.cn-zhangjiakou.aliyuncs.com/mapaas/m7s:$GIT_VERSION
+        docker push registry.cn-zhangjiakou.aliyuncs.com/mapaas/m7s:$GIT_VERSION
