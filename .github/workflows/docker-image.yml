@@ -21,9 +21,9 @@ jobs:
   
     - name: Build the Docker image
       run: |
-        VERSION=$(git tag --contains HEAD | grep ^v| sort -rV | head -n 1)
         BUILD_DATE=$(date "+%F %T")
         GIT_VERSION=$(git rev-parse --short HEAD)
+        commitId="${BUILD_DATE}-${GIT_VERSION}"
         docker login -u $ALIYUN_REGISTRY_USER -p $ALIYUN_REGISTRY_PASSWORD $ALIYUN_REGISTRY
-        docker build . --file Dockerfile --tag registry.cn-zhangjiakou.aliyuncs.com/mapaas/m7s:$GIT_VERSION
-        docker push registry.cn-zhangjiakou.aliyuncs.com/mapaas/m7s:$GIT_VERSION
+        docker build . --file Dockerfile --tag registry.cn-zhangjiakou.aliyuncs.com/mapaas/m7s:$commitId
+        docker push registry.cn-zhangjiakou.aliyuncs.com/mapaas/m7s:$commitId
